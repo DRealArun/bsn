@@ -53,7 +53,7 @@ def get_STL10(path, *args):
 
     normalization = transforms.Normalize(STL_MEAN, STL_STD)
 
-    train_transfrom = transforms.Compose([
+    train_transform = transforms.Compose([
         transforms.Compose(data_augmentation),
         transforms.ToTensor(),
         normalization])
@@ -64,7 +64,7 @@ def get_STL10(path, *args):
 
     train_set = STL10(root=path, split='train', download=True, transform=train_transform)
     test_set = STL10(root=path, split='test', download=True, transform=test_transform)
-    train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
+    train_set, val_set = validation_split(train_set, train_transform, test_transform, val_size=val_size)
 
     return train_set, val_set, test_set, img_dim, in_channels, out_size
 
@@ -170,7 +170,7 @@ def get_Fashion(path, *args):
 
     normalization = transforms.Normalize(FASHION_MEAN, FASHION_STD)
 
-    train_transfrom = transforms.Compose([
+    train_transform = transforms.Compose([
         transforms.Compose(data_augmentation),
         transforms.ToTensor(),
         normalization]
@@ -184,7 +184,7 @@ def get_Fashion(path, *args):
 
     train_set = FashionMNIST(root=path, train=True, download=True, transform=train_transform)
     test_set = FashionMNIST(root=path, train=False, download=True, transform=test_transform)
-    train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
+    train_set, val_set = validation_split(train_set, train_transform, test_transform, val_size=val_size)
 
     return train_set, val_set, test_set, img_dim, in_channels, out_size
 
@@ -203,7 +203,7 @@ def get_Devanagari(args):
 
     normalization = transforms.Normalize(DEVANAGARI_MEAN, DEVANAGARI_STD)
 
-    train_transfrom = transforms.Compose([
+    train_transform = transforms.Compose([
         transforms.Compose(data_augmentation),
         transforms.ToTensor(),
         normalization]
@@ -226,7 +226,7 @@ def get_Devanagari(args):
     test_path = os.path.join(path, 'DevanagariHandwrittenCharacterDataset','Test')
     train_set = ImageFolder(root=train_path, transform=train_transform, loader = grey_pil_loader)
     test_set = ImageFolder(root=test_path, transform=test_transform, loader = grey_pil_loader)
-    train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
+    train_set, val_set = validation_split(train_set, train_transform, test_transform, val_size=val_size)
 
     return train_set, val_set, test_set, img_dim, in_channels, out_size
 
