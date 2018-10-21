@@ -317,7 +317,7 @@ if __name__ == '__main__':
     args = vars(argument_parser())
 
     vis_conf = external.get_visdom_conf()
-    xp_logger = data_logger.Experiment(exp_name, use_visdom=True,
+    xp_logger = data_logger.Experiment(exp_name, use_visdom=False,
                                        visdom_opts={'server': vis_conf['url'], 'port': vis_conf['port'],
                                                     'env': args['draw_env']},
                                        time_indexing=False, xlabel='Epoch')

@@ -189,7 +189,7 @@ def get_Fashion(path, *args):
     return train_set, val_set, test_set, img_dim, in_channels, out_size
 
 
-def get_Devanagari(args):
+def get_Devanagari(path, *args):
     img_dim = 32
     in_channels = 1
     out_size = (46,)
