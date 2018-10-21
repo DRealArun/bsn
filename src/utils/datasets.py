@@ -4,7 +4,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms, datasets
-from torchvision.datasets import MNIST, CIFAR10, SVHN, CIFAR100
+from torchvision.datasets import MNIST, CIFAR10, SVHN, CIFAR100, STL10, FashionMNIST, ImageFolder
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +33,37 @@ def get_CIFAR10(path, *args):
 
     train_set = CIFAR10(root=path, train=True, download=True, transform=train_transfrom)
     test_set = CIFAR10(root=path, train=False, download=True, transform=test_transform)
+    train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
+
+    return train_set, val_set, test_set, img_dim, in_channels, out_size
+
+
+def get_STL10(path, *args):
+    path = os.path.join(path, 'vision')
+    img_dim = 96
+    in_channels = 3
+    out_size = (10,)
+    val_size = 500 # 10% of training set is being followed.
+    STL_MEAN = [ 0.44671062,  0.43980984,  0.40664645]
+    STL_STD = [ 0.26034098,  0.25657727,  0.27126738]
+
+    data_augmentation = [transforms.Pad(4),
+                         transforms.RandomCrop(96),
+                         transforms.RandomHorizontalFlip()]
+
+    normalization = transforms.Normalize(STL_MEAN, STL_STD)
+
+    train_transfrom = transforms.Compose([
+        transforms.Compose(data_augmentation),
+        transforms.ToTensor(),
+        normalization])
+
+    test_transform = transforms.Compose([
+        transforms.ToTensor(),
+        normalization])
+
+    train_set = STL10(root=path, split='train', download=True, transform=train_transform)
+    test_set = STL10(root=path, split='test', download=True, transform=test_transform)
     train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
 
     return train_set, val_set, test_set, img_dim, in_channels, out_size
@@ -125,6 +156,81 @@ def get_MNIST(path, *args):
     return train_set, val_set, test_set, img_dim, in_channels, out_size
 
 
+def get_Fashion(path, *args):
+    img_dim = 32
+    in_channels = 1
+    out_size = (10,)
+    val_size = 10000
+
+    FASHION_MEAN = (0.2860405969887955,)
+    FASHION_STD = (0.35302424825650003,)
+
+    data_augmentation = [transforms.Pad(4),
+                         transforms.RandomCrop(32)]
+
+    normalization = transforms.Normalize(FASHION_MEAN, FASHION_STD)
+
+    train_transfrom = transforms.Compose([
+        transforms.Compose(data_augmentation),
+        transforms.ToTensor(),
+        normalization]
+    )
+
+    test_transform = transforms.Compose([
+        transforms.Pad(2),
+        transforms.ToTensor(),
+        normalization]
+    )
+
+    train_set = FashionMNIST(root=path, train=True, download=True, transform=train_transform)
+    test_set = FashionMNIST(root=path, train=False, download=True, transform=test_transform)
+    train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
+
+    return train_set, val_set, test_set, img_dim, in_channels, out_size
+
+
+def get_Devanagari(args):
+    img_dim = 32
+    in_channels = 1
+    out_size = (46,)
+    val_size = 10000
+
+    DEVANAGARI_MEAN = (0.240004663268,)
+    DEVANAGARI_STD = (0.386530114768,)
+
+    data_augmentation = [transforms.Pad(4),
+                         transforms.RandomCrop(32)]
+
+    normalization = transforms.Normalize(DEVANAGARI_MEAN, DEVANAGARI_STD)
+
+    train_transfrom = transforms.Compose([
+        transforms.Compose(data_augmentation),
+        transforms.ToTensor(),
+        normalization]
+    )
+
+    test_transform = transforms.Compose([
+        transforms.Pad(2),
+        transforms.ToTensor(),
+        normalization]
+    )
+
+    def grey_pil_loader(path):
+      # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
+      with open(path, 'rb') as f:
+          img = Image.open(f)
+          img = img.convert('L')
+          return img
+    # Ensure dataset is present in the directory args.data. Does not support auto download
+    train_path = os.path.join(path, 'DevanagariHandwrittenCharacterDataset','Train')
+    test_path = os.path.join(path, 'DevanagariHandwrittenCharacterDataset','Test')
+    train_set = ImageFolder(root=train_path, transform=train_transform, loader = grey_pil_loader)
+    test_set = ImageFolder(root=test_path, transform=test_transform, loader = grey_pil_loader)
+    train_set, val_set = validation_split(train_set, train_transfrom, test_transform, val_size=val_size)
+
+    return train_set, val_set, test_set, img_dim, in_channels, out_size
+
+
 def get_PartLabels(path, *args):
     from torchdata.datasets.PartLabels import PartLabels
     from torchdata.transforms import jointransforms
@@ -196,6 +302,9 @@ sets = {
     'SVHN': get_SVHN,
     'PART': get_PartLabels,
     'ImageNet': get_ImageNet,
+    'STL10': get_STL10,
+    'Fashion': get_Fashion,
+    'Devanagari': get_Devanagari,
 }
 
 
